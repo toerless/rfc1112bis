@@ -1,0 +1,744 @@
+---
+
+coding: utf-8
+title: Host Extensions for "Any Source" IP Multicasting (ASM)
+abbrev: Any Source IP Multicasting (ASM)
+docname: draft-eckert-pim-rfc1112bis
+wg: PIM
+category: std
+stream: IETF
+obsoletes: 1112
+updates: 791, 8200
+ipr: trust200902
+
+stand_alone: yes
+pi: [ toc, tocdepth: 5, sortrefs, symrefs, comments]
+
+author:
+  -   
+       name: Stephen E. Deering
+       org: Retired
+       city: Vancouver, British Columbia
+       country: Canada
+       email: deering@noreply.ietf.org
+  -   
+       name: Toerless Eckert
+       org: Futurewei Technologies USA
+       role: editor
+       country: USA
+       email: tte@cs.fau.de
+  -   
+       name: Robert M. Hinden
+       org: Secretary for Stephen E. Deering
+       country: USA
+       email: bob.hinden@gmail.com
+
+normative:
+  RFC791:
+  RFC1112:
+  RFC2464:
+  RFC4291:
+  RFC4607:
+  RFC8200:
+
+informative:
+  I-D.ietf-taps-interface:
+  RFC1045:
+  RFC1883:
+  RFC2119:
+  RFC1972:
+  RFC3376:
+  RFC3493:
+  RFC3678:
+  RFC3810:
+  RFC3956:
+  RFC4861:
+  RFC5790:
+  RFC6085:
+  RFC7346:
+  RFC7371:
+  RFC8507:
+  RFC8815:
+
+--- abstract
+
+This memo specifies the extensions required of a host implementation
+of the Internet Protocol (IP) to support Any Source Multicast (ASM)
+IP Multicasting or abbreviated IP Multicast. 
+Distribution of this memo is unlimited.
+
+--- middle
+
+# STATUS OF THIS MEMO
+
+This memo specifies the extensions required of a host implementation
+of the Internet Protocol (IP) to support Any Source Multicast (ASM)
+IP Multicasting or abbreviated IP Multicast. 
+Distribution of this memo is unlimited.
+
+## Requirements Language
+
+This document is an update of {{RFC1112}} which was written before {{RFC2119}},
+This update intends to maintain all the language of {{RFC1112}} unmodified except
+for the the changes outlined in {{changes}}. Therefore, this document does
+not use language from {{RFC2119}}.
+
+# INTRODUCTION
+
+The host extensions defined in this memo are called
+Any Source Multicast (ASM) IP multicast or abbreviated IP multicast. 
+The term Any Source Multicast is used to distinguish these extensions
+from Source Specific Multicast (SSM) IP multicast as defined by {{RFC4607}}.
+The abbreviation IP multicast always refers to this memo's extensions.
+
+This memo applies to both IP and IPv6. When it uses the term IP it
+implies either or both version of the IP protocol. It uses
+the terms IP and/or IPv6 explicitly when referring to functions
+applicable to only a specific version of the IP protocol.
+
+This document is a revision of {{RFC1112}}. See Appendix II. for a detailled
+list of changes from that memo.
+
+IP multicasting is the transmission of an IP datagram to a "host
+group", a set of zero or more hosts identified by a single IP
+destination address.  A multicast datagram is delivered to all
+members of its destination host group with the same "best-efforts"
+reliability as regular unicast IP datagrams, i.e., the datagram is
+not guaranteed to arrive intact at all members of the destination
+group or in the same order relative to other datagrams.
+
+The membership of a host group is dynamic; that is, hosts may join
+and leave groups at any time.  There is no restriction on the
+location or number of members in a host group.  A host may be a
+member of more than one group at a time.  A host need not be a member
+of a group to send datagrams to it.
+
+A host group may be permanent or transient.  A permanent group has a
+well-known, administratively assigned IP address.  It is the address,
+not the membership of the group, that is permanent; at any time a
+permanent group may have any number of members, even zero.  Those IP
+multicast addresses that are not reserved for permanent groups are
+available for dynamic assignment to transient groups which exist only
+as long as they have members.
+
+Internetwork forwarding of IP multicast datagrams is handled by
+"multicast routers" which may be co-resident with, or separate from,
+internet gateways.  A host transmits an IP multicast datagram as a
+local network multicast which reaches all immediately-neighboring
+members of the destination host group.  If the datagram has an IP
+time-to-live greater than 1, the multicast router(s) attached to the
+local network take responsibility for forwarding it towards all other
+networks that have members of the destination group.  On those other
+member networks that are reachable within the IP time-to-live, an
+attached multicast router completes delivery by transmitting the
+datagram as a local multicast.
+
+This memo specifies the extensions required of a host IP
+implementation to support IP multicasting, where a "host" is any
+internet host or gateway other than those acting as multicast
+routers.  The algorithms and protocols used within and between
+multicast routers are transparent to hosts and will be specified in
+separate documents.  This memo also does not specify how local
+network multicasting is accomplished for all types of network,
+although it does specify the required service interface to an
+arbitrary local network and gives an Ethernet specification as an
+example.  Specifications for other types of network will be the
+subject of future memos.
+
+# LEVELS OF CONFORMANCE
+
+There are three levels of conformance to this specification:
+
+## Level 0: no support for IP multicasting.
+
+There is, at this time, no requirement that all IP implementations
+support IP multicasting.  Level 0 hosts will, in general, be
+unaffected by multicast activity.  The only exception arises on some
+types of local network, where the presence of level 1 or 2 hosts may
+cause misdelivery of multicast IP datagrams to level 0 hosts.  Such
+datagrams can easily be identified by the presence of a class D IP
+address in their destination address field; they should be quietly
+discarded by hosts that do not support IP multicasting.  Class D
+addresses are described in section 4 of this memo.
+
+## Level 1: support for sending but not receiving multicast IP datagrams.
+
+Level 1 allows a host to partake of some multicast-based services,
+such as resource location or status reporting, but it does not allow
+a host to join any host groups.  An IP implementation may be upgraded
+from level 0 to level 1 very easily and with little new code.  Only
+sections 4, 5, and 6 of this memo are applicable to level 1
+implementations.
+
+## Level 2: full support for IP multicasting.
+
+Level 2 allows a host to join and leave host groups, as well as send
+IP datagrams to host groups.  Most IPv6 hosts require Level 2 support
+because IPv6 Neighbor Discovery ({{RFC4861}}, as used on most link types)
+depends on multicast and requires that nodes join Solicited Node multicast addresses.
+
+Level 2 requires implementation of the Internet Group Management Protocol (IGMP)
+for IP and the equivalent Multicast Listener Discovery Protocol (MLD) for IPv6 
+and extension of the IP and local network service interfaces within the host.
+
+The current protocol versions are IGMPv3 {{RFC3376}} and MLDv2 {{RFC3810}} or lightweight
+versions of either protocol {{RFC5790}}.
+
+All of the following sections of this memo are applicable to level 2
+implementations.
+
+# HOST GROUP ADDRESSES
+
+IP Host groups are identified by class D IP addresses, i.e., those with
+"1110" as their high-order four bits.  Class E IP addresses, i.e.,
+those with "1111" as their high-order four bits, are reserved for
+future addressing modes.
+
+In Internet standard "dotted decimal" notation, host group addresses
+range from 224.0.0.0 to 239.255.255.255.  The address 224.0.0.0 is
+guaranteed not to be assigned to any group, and 224.0.0.1 is assigned
+to the permanent group of all IP hosts (including gateways).  This is
+used to address all IP multicast hosts on the directly connected
+network.  There is no multicast address (or any other IP address) for
+all hosts on the total Internet.  The addresses of other well-known,
+permanent groups are to be published in "Assigned Numbers".
+
+IPv6 Host groups are identified by IPv6 addresses as defined in {{RFC4291}} section 2.7
+and updated by {{RFC7346}}, {{RFC7371}}.
+
+IP and IPv6 addresses as specified in {{RFC4607}} are not used for
+ASM IP multicast and are not considered IP host groups. They are instead
+only the destination address part G of Source Specific Multicast (SSM)
+IP multicast (S,G) channels.
+
+Appendix I contains some background discussion of several issues
+related to host group addresses.
+
+# MODEL OF A HOST IP IMPLEMENTATION
+
+The multicast extensions to a host IP implementation are specified in
+terms of the layered model illustrated below in {{FIG1}}.  In this model, ICMP/ICMPv6
+and (for level 2 hosts) IGMP/MLD are considered to be implemented within
+the IP module, and the mapping of IP addresses to local network
+addresses is considered to be the responsibility of local network
+modules.  This model is for expository purposes only, and should not
+be construed as constraining an actual implementation.
+
+       |                                                          |
+       |              Upper-Layer Protocol Modules                |
+       |__________________________________________________________|
+
+    --------------------- IP Service Interface -----------------------
+        __________________________________________________________
+       |                            |              |              |
+       |                            | IP:          | IPv6:        |
+       |                            | ICMP+ICMP    | ICMPv6+MLD   |
+       |    IP [IP and/or IPv6]     |______________|______________|
+       |           Module(s)                                      |
+       |                                                          |
+       |__________________________________________________________|
+
+    ---------------- Local Network Service Interface -----------------
+        __________________________________________________________
+       |                            |                             |
+       |           Local            | IP-to-local address mapping |
+       |          Network           |         (e.g., ARP/ND)      |
+       |          Modules           |_____________________________|
+       |      (e.g., Ethernet)                                    |
+       |                                                          |
+{: #FIG1 title="multicast extensions to a host IP implementation"}
+
+To provide level 1 multicasting, a host IP implementation must
+support the transmission of multicast IP datagrams.  To provide level
+2 multicasting, a host must also support the reception of multicast
+IP datagrams.  Each of these two new services is described in a
+separate section, below.  For each service, extensions are specified
+for the IP service interface, the IP module, the local network
+service interface, and an Ethernet local network module.  Extensions
+to local network modules other than Ethernet are mentioned briefly,
+but are not specified in detail.
+
+# SENDING MULTICAST IP DATAGRAMS
+
+## Extensions to the IP Service Interface
+
+Multicast IP datagrams are sent using the same "Send IP" operation
+used to send unicast IP datagrams; an upper-layer protocol module
+merely specifies an IP host group address, rather than an individual
+IP address, as the destination.  However, a number of extensions may
+be necessary or desirable.
+
+First, the service interface should provide a way for the upper-layer
+protocol to specify the IP time-to-live of an outgoing multicast
+datagram, if such a capability does not already exist.  If the
+upper-layer protocol chooses not to specify a time-to-live, it should
+default to 1 for all multicast IP datagrams, so that an explicit
+choice is required to multicast beyond a single network.
+
+Second, for hosts that may be attached to more than one network, the
+service interface should provide a way for the upper-layer protocol
+to identify which network interface is be used for the multicast
+transmission.  Only one interface is used for the initial
+transmission; multicast routers are responsible for forwarding to any
+other networks, if necessary.  If the upper-layer protocol chooses
+not to identify an outgoing interface, a default interface should be
+used, preferably under the control of system management.
+
+Third (level 2 implementations only), for the case in which the host
+is itself a member of a group to which a datagram is being sent, the
+service interface should provide a way for the upper-layer protocol
+to inhibit local delivery of the datagram; by default, a copy of the
+datagram is looped back.  This is a performance optimization for
+upper-layer protocols that restrict the membership of a group to one
+process per host (such as a routing protocol), or that handle
+loopback of group communication at a higher layer (such as a
+multicast transport protocol).
+
+IPv6 socket extensions supporting these functions are defined in {{RFC3493}}, section 5.2.
+
+## Extensions to the IP Module
+
+To support the sending of multicast IP datagrams, the IP module must
+be extended to recognize IP host group addresses when routing
+outgoing datagrams.  Most IP implementations include the following
+logic:
+
+~~~
+    if IP-destination is on the same local network,
+       send datagram locally to IP-destination
+    else
+       send datagram locally to GatewayTo( IP-destination )
+~~~
+
+To allow multicast transmissions, the routing logic must be changed to:
+
+~~~
+    if IP-destination is on the same local network
+    or IP-destination is a host group,
+       send datagram locally to IP-destination
+    else
+       send datagram locally to GatewayTo( IP-destination )
+~~~
+
+If the sending host is itself a member of the destination group on
+the outgoing interface, a copy of the outgoing datagram must be
+looped-back for local delivery, unless inhibited by the sender.
+(Level 2 implementations only.)
+
+The IP source address of the outgoing datagram must be one of the
+individual addresses corresponding to the outgoing interface.
+
+A host group address must never be placed in the source address field
+or anywhere in a source route or record route option of an outgoing
+IP datagram.
+
+## Extensions to the Local Network Service Interface
+
+No change to the local network service interface is required to
+support the sending of multicast IP datagrams.  The IP module merely
+specifies an IP host group destination, rather than an individual IP
+destination, when it invokes the existing "Send Local" operation.
+
+## Extensions to an Ethernet Local Network Module
+
+The Ethernet directly supports the sending of local multicast packets
+by allowing multicast addresses in the destination field of Ethernet
+packets.  All that is needed to support the sending of multicast IP
+datagrams is a procedure for mapping IP host group addresses to
+Ethernet multicast addresses.
+
+An IP host group address is mapped to an Ethernet multicast address
+by placing the low-order 23-bits of the IP address into the low-order
+23 bits of the Ethernet multicast address 01-00-5E-00-00-00 (hex).
+Because there are 28 significant bits in an IP host group address,
+more than one host group address may map to the same Ethernet
+multicast address.
+
+Mapping of IPv6 host group addresses to Ethernet is defined in
+{{RFC2464}} and {{RFC6085}}.
+
+## Extensions to Local Network Modules other than Ethernet
+
+Other networks that directly support multicasting, such as rings or
+buses conforming to the IEEE 802.2 standard, may be handled the same
+way as Ethernet for the purpose of sending multicast IP datagrams.
+For a network that supports broadcast but not multicast, such as the
+Experimental Ethernet, all IP host group addresses may be mapped to a
+single local broadcast address (at the cost of increased overhead on
+all local hosts).  For a point-to-point link joining two hosts (or a
+host and a multicast router), multicasts should be transmitted
+exactly like unicasts.  For a store-and-forward network like the
+ARPANET or a public X.25 network, all IP host group addresses might
+be mapped to the well-known local address of an IP multicast router;
+a router on such a network would take responsibility for completing
+multicast delivery within the network as well as among networks.
+
+# RECEIVING MULTICAST IP DATAGRAMS
+
+## Extensions to the IP Service Interface
+
+Incoming multicast IP datagrams are received by upper-layer protocol
+modules using the same "Receive IP" operation as normal, unicast
+datagrams.  Selection of a destination upper-layer protocol is based
+on the protocol field in the IP header, regardless of the destination
+IP address.  However, before any datagrams destined to a particular
+group can be received, an upper-layer protocol must ask the IP module
+to join that group.  Thus, the IP service interface must be extended
+to provide two new operations:
+
+~~~
+    JoinHostGroup  ( group-address, interface )
+    
+    LeaveHostGroup ( group-address, interface )
+~~~
+
+The JoinHostGroup operation requests that this host become a member
+of the host group identified by "group-address" on the given network
+interface.  The LeaveGroup operation requests that this host give up
+its membership in the host group identified by "group-address" on the
+given network interface.  The interface argument may be omitted on
+hosts that support only one interface.  For hosts that may be
+attached to more than one network, the upper-layer protocol may
+choose to leave the interface unspecified, in which case the request
+will apply to the default interface for sending multicast datagrams
+(see section 6.1).
+
+It is permissible to join the same group on more than one interface,
+in which case duplicate multicast datagrams may be received.  It is
+also permissible for more than one upper-layer protocol to request
+membership in the same group.
+
+Both operations should return immediately (i.e., they are non-
+blocking operations), indicating success or failure.  Either
+operation may fail due to an invalid group address or interface
+identifier.  JoinHostGroup may fail due to lack of local resources.
+LeaveHostGroup may fail because the host does not belong to the given
+group on the given interface.  LeaveHostGroup may succeed, but the
+membership persist, if more than one upper-layer protocol has
+requested membership in the same group.
+
+IPv6 socket extensions supporting these functions are defined in {{RFC3493}}, section 5.2.
+{{RFC3678}} specifies these functions for IP and IPv6 (as well as for SSM). Note that
+these are UDP socket extions (and not IP/IPv6 socket extensions due to the absence of
+widely available/used IP/IPv6 level socket APIs).
+
+## Extensions to the IP Module
+
+To support the reception of multicast IP datagrams, the IP module
+must be extended to maintain a list of host group memberships
+associated with each network interface.  An incoming datagram
+destined to one of those groups is processed exactly the same way as
+datagrams destined to one of the host's individual addresses.
+
+Incoming datagrams destined to groups to which the host does not
+belong are discarded without generating any error report or log
+entry.  On hosts with more than one network interface, if a datagram
+arrives via one interface, destined for a group to which the host
+belongs only on a different interface, the datagram is quietly
+discarded.  (These cases should occur only as a result of inadequate
+multicast address filtering in a local network module.)
+
+An incoming datagram is not rejected for having an IP time-to-live of
+1 (i.e., the time-to-live should not automatically be decremented on
+arriving datagrams that are not being forwarded).  An incoming
+datagram with an IP host group address in its source address field is
+quietly discarded.  An ICMP/ICMPv6 error message (Destination Unreachable,
+Time Exceeded, Parameter Problem, Source Quench, or Redirect) is
+never generated in response to a datagram destined to an IP host
+group.
+
+The list of host group memberships is updated in response to
+JoinHostGroup and LeaveHostGroup requests from upper-layer protocols.
+Each membership should have an associated reference count or similar
+mechanism to handle multiple requests to join and leave the same
+group.  On the first request to join and the last request to leave a
+group on a given interface, the local network module for that
+interface is notified, so that it may update its multicast reception
+filter (see section 7.3).
+
+The IP module must also be extended to implement the IGMP protocol for
+IP and the MLD protocol for IPv6.  IGMP/MLD are used to keep neighboring multicast
+routers informed of the host group memberships present on a
+particular local network.  
+
+## Extensions to the Local Network Service Interface
+
+Incoming local network multicast packets are delivered to the IP
+module using the same "Receive Local" operation as local network
+unicast packets.  To allow the IP module to tell the local network
+module which multicast packets to accept, the local network service
+interface is extended to provide two new operations:
+
+~~~
+    JoinLocalGroup  ( group-address )
+    
+    LeaveLocalGroup ( group-address )
+~~~
+
+where "group-address" is an IP host group address.  The
+JoinLocalGroup operation requests the local network module to accept
+and deliver up subsequently arriving packets destined to the given IP
+host group address.  The LeaveLocalGroup operation requests the local
+network module to stop delivering up packets destined to the given IP
+host group address.  The local network module is expected to map the
+IP host group addresses to local network addresses as required to
+update its multicast reception filter.  Any local network module is
+free to ignore LeaveLocalGroup requests, and may deliver up packets
+destined to more addresses than just those specified in
+JoinLocalGroup requests, if it is unable to filter incoming packets
+adequately.
+
+The local network module must not deliver up any multicast packets
+that were transmitted from that module; loopback of multicasts is
+handled at the IP layer or higher.
+
+## Extensions to an Ethernet Local Network Module
+
+To support the reception of multicast IP datagrams, an Ethernet
+module must be able to receive packets addressed to the Ethernet
+multicast addresses that correspond to the host's IP host group
+addresses.  It is highly desirable to take advantage of any address
+filtering capabilities that the Ethernet hardware interface may have,
+so that the host receives only those packets that are destined to it.
+
+Unfortunately, many current Ethernet interfaces have a small limit on
+the number of addresses that the hardware can be configured to
+recognize.  Nevertheless, an implementation must be capable of
+listening on an arbitrary number of Ethernet multicast addresses,
+which may mean "opening up" the address filter to accept all
+multicast packets during those periods when the number of addresses
+exceeds the limit of the filter.
+
+For interfaces with inadequate hardware address filtering, it may be
+desirable (for performance reasons) to perform Ethernet address
+filtering within the software of the Ethernet module.  This is not
+mandatory, however, because the IP module performs its own filtering
+based on IP destination addresses.
+
+## Extensions to Local Network Modules other than Ethernet
+
+Other multicast networks, such as IEEE 802.2 networks, can be handled
+the same way as Ethernet for the purpose of receiving multicast IP
+datagrams.  For pure broadcast networks, such as the Experimental
+Ethernet, all incoming broadcast packets can be accepted and passed
+to the IP module for IP-level filtering.  On point-to-point or
+store-and-forward networks, multicast IP datagrams will arrive as
+local network unicasts, so no change to the local network module
+should be necessary.
+
+--- back
+
+# HOST GROUP ADDRESS ISSUES
+
+This appendix is not part of the IP multicasting specification, but
+provides background discussion of several issues related to IP host
+group addresses.
+
+## Group Address Binding
+
+The binding of IP host group addresses to physical hosts may be
+considered a generalization of the binding of IP unicast addresses.
+An IP unicast address is statically bound to a single local network
+interface on a single IP network.  An IP host group address is
+dynamically bound to a set of local network interfaces on a set of IP
+networks.
+
+It is important to understand that an IP host group address is NOT
+bound to a set of IP unicast addresses.  The multicast routers do not
+need to maintain a list of individual members of each host group.
+For example, a multicast router attached to an Ethernet need
+associate only a single Ethernet multicast address with each host
+group having local members, rather than a list of the members'
+individual IP or Ethernet addresses.
+
+## Allocation of Transient Host Group Addresses
+
+This memo does not specify how transient group address are allocated.
+It is anticipated that different portions of the IP transient host
+group address space will be allocated using different techniques.
+For example, there may be a number of servers that can be contacted
+to acquire a new transient group address.  Some higher-level
+protocols (such as VMTP, specified in {{RFC1045}}) may generate higher-
+level transient "process group" or "entity group" addresses which are
+then algorithmically mapped to a subset of the IP transient host
+group addresses, similarly to the way that IP host group addresses
+are mapped to Ethernet multicast addresses.  A portion of the IP
+group address space may be set aside for random allocation by
+applications that can tolerate occasional collisions with other
+multicast users, perhaps generating new addresses until a suitably
+"quiet" one is found.
+
+In general, a host cannot assume that datagrams sent to any host
+group address will reach only the intended hosts, or that datagrams
+received as a member of a transient host group are intended for the
+recipient.  Misdelivery must be detected at a level above IP, using
+higher-level identifiers or authentication tokens.  Information
+transmitted to a host group address should be encrypted or governed
+by administrative routing controls if the sender is concerned about
+unwanted listeners.
+
+# Changes from RFC1112 {#changes}
+
+This document updates {{RFC1112}} with the following changes.
+
+## Removal of IGMP version 1 text
+
+The primary change of this update is the removal of the text of appendix I of {{RFC1112}} which
+defines version 1 of the IGMP protocol (IGMPv1), as well as text elsewhere in the document
+referring to details of IGMPv1. IGMPv1 is an obsolete version of the IGMP protocol and
+superceeded by IGMP version 3, {{RFC3376}}, whereas the IP Multicasting service specified
+in {{RFC1112}} is not obsolete. IGMP version 1 can only be obsoleted by changing the
+status of {{RFC1112}} to historic.  This update allows for this update 
+while maintaining Internet Standard status for the IP Multicasting service through
+this document.
+
+No functional changes to the IP Multicast service are incurred by these changes.
+
+## Introduction of the term Any-Source Multicast (ASM)
+
+This update introduces the term "ASM IP multicast" (ASM) as another term
+for "Host Extensions for IP multicast". This term was introduced when 
+{{RFC4607}} introduced another service model for IP Multicast called
+"Source Specific Multicast" (SSM), and hence, the service described in
+{{RFC1112}} and this update is more precisely called Any Source Multicast (ASM) IP multicast.
+
+{{RFC1112}} defines and uses the term "host group". This term is not
+applicable to IP/IPv6 multicast group addresses that are not used for ASM but SSM 
+according to {{RFC4607}}. New text in this document explains this.
+
+No functional changes to the IP Multicast service are incurred by these changes.
+
+## Applicability to both IP and IPv6
+
+This update is written to apply to both IP and IPv6 by adding equivalent
+detail for IPv6 where {{RFC1112}} only covered IP: addressing and protocols
+in support of the service - Multicast Listener Discovery {{RFC3810}} for IPv6 versus
+IGMP for IP.
+
+Note: IPv6 documents such as {{RFC1883}} and all its updates (e.g.: {{RFC8200}}) are defining
+multicasting in the assumption of the service of {{RFC1112}} for IPv6, but without
+being able to refer to {{RFC1112}}, as it was only defined for IP. Future documents
+can refer to this document as the IP Multicast / ASM service for both IP and IPv6.
+
+Additional text provides references for IETF UDP socket API specifications that instantiate
+the abstract APIs defined in this document.
+
+No functional changes to the IP Multicast service are incurred by these text changes.
+
+## Standard for IP multicasting in controlled networks
+
+The update removes the claim in the abstract of {{RFC1112}}, that these host extensions are
+"... the recommended standard for IP multicasting in the Internet."
+
+The reason for this is that {{RFC8815}} deprecated the ASM Service
+across the Internet because there is no Internet Standard solution
+for protocols to support interdomain ASM except for {{RFC3956}}, which
+is only applicable to IPv6, and even that solution does not resolve
+the challenges to source access control in interdomain deployments.
+
+In result, ASM is today "only" a recommended solution for controlled networks
+including controlled federated networks for applications for which SSM is
+not usable.
+
+No functional changes to the IP Multicast service are incurred by these text changes.
+
+# Discussion and Explanations (TO BE REMOVED)
+
+\[RFC-editor: Please remove this section]
+
+Please refer to {{changes}} for the non-process disucssion of the goals of this document.
+
+## Goals of this document
+
+The goal of this document is to allow to declare {{RFC1112}} historic and
+inherit the full INTERNET STANDARD status of {{RFC1112}} with this document
+immediately - without going through the otherwise necessary long process.
+
+The reason why {{RFC1112}} needs to be declared historic is so that the IGMP
+version 1 protocol specified in it can be declared obsolete. This update removes
+IGMPv1 text.
+
+The reason why this document is still needed (as an Internet Standard), is
+because the IP Multicast service specified in {{RFC1112}} has since its inception
+been the Internet Standard for the IP Multicasting service.
+
+To allow for this document to gets immediately the intended Internet Standard status,
+it introduces no functional changes and it deliverately avoids also any unnecessary
+textual changes. This includes the deliberade non-upgrade of the {{RFC1112}} language
+to use {{RFC2119}} terminology. While the use of that language might be preferred
+for new work/text, the success of IP Multicasting as defined in {{RFC2119}} seems
+to indicate that the existing text was more than sufficient.
+
+## Internet Standard status
+
+Note that the removal of the IGMPv1 protocol may raise the question whether the
+document in its current form still contains specifications sufficient for Internet
+Standard as opposed to Informational.
+
+The core aspects that impacts interoperability (and hence qualifies the document
+for Internet Standard) is the format of IP packets when IP Multicast service is used,
+e.g.: IP Multicast addressing and binding to Multicast Ethernet MAC addresses.
+There is no other RFC that introduces these specifications for IP, because there was
+never another update to {{RFC791}} to do this. {{RFC4607}}, another standards track
+document bilding on {{RFC1112}}, defining the SSM service / host stack.
+
+This update also includes the necessary text for IPv6. Note that for
+IPv6 the ethernet MAC address mapping of IPv6 multicast packets was later (after {{RFC1112}})
+specified in {{RFC1972}} and its updates, but scattering the aspects of IPv6 multicast
+across (currently) {{RFC2464}}, {RFC4291}} and {{RFC8200}} makes it arguably more
+difficult for implementers to understand the technology than this document that
+coalesces all these services aspects - from ethernet bonding to application interfac.
+
+Beyond those packet format/ethernet aspects, historically, the Multicast service
+(API) related text in {{RFC1112}} would not have been considered to be an
+Internet Standards scope definition because this classification was not extended
+to (abstract) APIs, even though they do of course define an interoperability interface
+between e.g.: operating system providing the API and applications using it.
+
+Recently, the IETF has changed its stance on this issue though and is working on
+ {{I-D.ietf-taps-interface}} with the intent for it to become Internet Standard.
+With this in mind, all that text of {{RFC1112}} can also be considered appropriate
+for Internet Standard.
+
+## Open issues
+
+The original Author of {{RFC1112}}, Stephen E. Deering prefers that no e-mail address
+appears in RFC for his authorship. This wish was honored by the IETF for
+{{RFC8200}} and {{RFC8507}}, but seemingly the IETF policy on this was changed afterwards
+to mandate e-mails for authors. 
+
+The authors to consider that the prior policy did work well for {{RFC8200}} and {{RFC8507}}
+and think the current policy is inappropriate for the case of this document: The original
+author is not involved in the editing of this document and hence does not want to be
+involved / receive emails about it. Nevertheless, the text of this document is overwhelmingly
+the work of this original author, so there is no appropriate way for him not to be named
+the primary author. Likewise a complete rework of the text just to overcome a new IETF
+policy is inappropriate.
+
+Given how IETF Datatracker does require email addresses for authors, this open issue
+is currently attempted to be worked around by using a pseudo email for Steve Deering:
+deering@noreply.ietf.org. 
+
+Note that any process steps where author approval is required (such as during AUTH48 
+or for IPR questionaires) will be provided for Steve Deering by Bob Hinden, bob.hinden@gmail.com.
+
+## Changelog
+
+### draft-eckert-pim-rfc1112bis-01
+
+Changed all use of IPv4 back to IP. Seems standard in IETF specs. Only IPv6 has
+in IETF specs the distinction of including the version.
+
+Changed Steve Deerings address to a pseudo-email address at IETF. See open issues.
+
+Converted document into kramdownrfc2629 format for easier editing.
+
+Claims that rfc2119 language is not desired/used (to maintain maximum original text without changes).
+
+Rewrote section for updates to rfc1112 to hopefully better motivate/explain the reason for this document and detail what its changes are.
+
+### draft-eckert-pim-rfc1112bis-00
+
+Initial version based on {{RFC1112}} text version, edited.
+
+
