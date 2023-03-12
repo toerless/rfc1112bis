@@ -8,7 +8,7 @@ wg: PIM
 category: std
 stream: IETF
 obsoletes: 1112
-# updates: 791, 8200
+updates: 791, 8200
 ipr: trust200902
 
 stand_alone: yes
@@ -27,6 +27,11 @@ author:
        role: editor
        country: USA
        email: tte@cs.fau.de
+  -   
+       name: Robert M. Hinden
+       org: Secretary for Stephen E. Deering
+       country: USA
+       email: bob.hinden@gmail.com
 
 normative:
   RFC791:
@@ -40,9 +45,8 @@ informative:
   I-D.ietf-taps-interface:
   RFC1045:
   RFC1883:
-  RFC1972:
   RFC2119:
-  RFC2460:
+  RFC1972:
   RFC3376:
   RFC3493:
   RFC3678:
@@ -696,23 +700,27 @@ Recently, the IETF has changed its stance on this issue though and is working on
 With this in mind, all that text of {{RFC1112}} can also be considered appropriate
 for Internet Standard.
 
-## Authors email
+## Open issues
 
-This document does include Steve Deering as the original author of the base rfc
-{{RFC1112}} in the same way as {{RFC8200}} does for {{RFC2460}} ({{RFC8507}} is also similar).
- The mayority of text
-originates from his original RFC, hence he is the primary co-author.  He is not
-actively involved in editing this -bis document but is in support of the work. 
-Changes are edited by the co-author(s).
+The original Author of {{RFC1112}}, Stephen E. Deering prefers that no e-mail address
+appears in RFC for his authorship. This wish was honored by the IETF for
+{{RFC8200}} and {{RFC8507}}, but seemingly the IETF policy on this was changed afterwards
+to mandate e-mails for authors. 
 
-Being retired and not actively involved, he does not want for his personal email 
-address to be included in the work. Any notifications where all authors need to provide
-feedback will be forwarded through the co-author.
+The authors to consider that the prior policy did work well for {{RFC8200}} and {{RFC8507}}
+and think the current policy is inappropriate for the case of this document: The original
+author is not involved in the editing of this document and hence does not want to be
+involved / receive emails about it. Nevertheless, the text of this document is overwhelmingly
+the work of this original author, so there is no appropriate way for him not to be named
+the primary author. Likewise a complete rework of the text just to overcome a new IETF
+policy is inappropriate.
 
-Whereas at the time of {{RFC8200}} it was possible for a co-author to not have
-to include an email address, policies on Datatracker have since changed and
-therefore this draft include a placeholder email address for Steve solely to allow uploading
-to Datatracker.
+Given how IETF Datatracker does require email addresses for authors, this open issue
+is currently attempted to be worked around by using a pseudo email for Steve Deering:
+deering@noreply.ietf.org. 
+
+Note that any process steps where author approval is required (such as during AUTH48 
+or for IPR questionaires) will be provided for Steve Deering by Bob Hinden, bob.hinden@gmail.com.
 
 ## Changelog
 
@@ -721,7 +729,7 @@ to Datatracker.
 Changed all use of IPv4 back to IP. Seems standard in IETF specs. Only IPv6 has
 in IETF specs the distinction of including the version.
 
-Changed Steve Deerings address to a pseudo-email address at IETF. See prior section.
+Changed Steve Deerings address to a pseudo-email address at IETF. See open issues.
 
 Converted document into kramdownrfc2629 format for easier editing.
 

@@ -5,10 +5,8 @@
 PIM                                                        S. E. Deering
 Internet-Draft                                                   Retired
 Obsoletes: 1112 (if approved)                             T. Eckert, Ed.
-Updates: 791, 8200 (if approved)              Futurewei Technologies USA
-Intended status: Standards Track                            R. M. Hinden
-Expires: 12 September 2023              Secretary for Stephen E. Deering
-                                                           11 March 2023
+Intended status: Standards Track              Futurewei Technologies USA
+Expires: 13 September 2023                                 12 March 2023
 
 
          Host Extensions for "Any Source" IP Multicasting (ASM)
@@ -36,27 +34,12 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 12 September 2023.
+   This Internet-Draft will expire on 13 September 2023.
 
 Copyright Notice
 
    Copyright (c) 2023 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
-
-
-
-
-
-
-
-
-
-
-
-Deering, et al.         Expires 12 September 2023               [Page 1]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents (https://trustee.ietf.org/
@@ -67,13 +50,21 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    described in Section 4.e of the Trust Legal Provisions and are
    provided without warranty as described in the Revised BSD License.
 
+
+
+
+Deering & Eckert        Expires 13 September 2023               [Page 1]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
+
 Table of Contents
 
    1.  STATUS OF THIS MEMO . . . . . . . . . . . . . . . . . . . . .   3
      1.1.  Requirements Language . . . . . . . . . . . . . . . . . .   3
    2.  INTRODUCTION  . . . . . . . . . . . . . . . . . . . . . . . .   3
    3.  LEVELS OF CONFORMANCE . . . . . . . . . . . . . . . . . . . .   4
-     3.1.  Level 0: no support for IP multicasting.  . . . . . . . .   5
+     3.1.  Level 0: no support for IP multicasting.  . . . . . . . .   4
      3.2.  Level 1: support for sending but not receiving multicast IP
            datagrams.  . . . . . . . . . . . . . . . . . . . . . . .   5
      3.3.  Level 2: full support for IP multicasting.  . . . . . . .   5
@@ -82,44 +73,46 @@ Table of Contents
    6.  SENDING MULTICAST IP DATAGRAMS  . . . . . . . . . . . . . . .   7
      6.1.  Extensions to the IP Service Interface  . . . . . . . . .   7
      6.2.  Extensions to the IP Module . . . . . . . . . . . . . . .   8
-     6.3.  Extensions to the Local Network Service Interface . . . .   9
-     6.4.  Extensions to an Ethernet Local Network Module  . . . . .   9
+     6.3.  Extensions to the Local Network Service Interface . . . .   8
+     6.4.  Extensions to an Ethernet Local Network Module  . . . . .   8
      6.5.  Extensions to Local Network Modules other than
            Ethernet  . . . . . . . . . . . . . . . . . . . . . . . .   9
-   7.  RECEIVING MULTICAST IP DATAGRAMS  . . . . . . . . . . . . . .  10
-     7.1.  Extensions to the IP Service Interface  . . . . . . . . .  10
-     7.2.  Extensions to the IP Module . . . . . . . . . . . . . . .  11
-     7.3.  Extensions to the Local Network Service Interface . . . .  12
+   7.  RECEIVING MULTICAST IP DATAGRAMS  . . . . . . . . . . . . . .   9
+     7.1.  Extensions to the IP Service Interface  . . . . . . . . .   9
+     7.2.  Extensions to the IP Module . . . . . . . . . . . . . . .  10
+     7.3.  Extensions to the Local Network Service Interface . . . .  11
      7.4.  Extensions to an Ethernet Local Network Module  . . . . .  12
      7.5.  Extensions to Local Network Modules other than
-           Ethernet  . . . . . . . . . . . . . . . . . . . . . . . .  13
-   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  13
-     8.1.  Normative References  . . . . . . . . . . . . . . . . . .  13
+           Ethernet  . . . . . . . . . . . . . . . . . . . . . . . .  12
+   8.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  12
+     8.1.  Normative References  . . . . . . . . . . . . . . . . . .  12
      8.2.  Informative References  . . . . . . . . . . . . . . . . .  13
    Appendix A.  HOST GROUP ADDRESS ISSUES  . . . . . . . . . . . . .  15
-     A.1.  Group Address Binding . . . . . . . . . . . . . . . . . .  16
+     A.1.  Group Address Binding . . . . . . . . . . . . . . . . . .  15
      A.2.  Allocation of Transient Host Group Addresses  . . . . . .  16
    Appendix B.  Changes from RFC1112 . . . . . . . . . . . . . . . .  16
-     B.1.  Removal of IGMP version 1 text  . . . . . . . . . . . . .  17
+     B.1.  Removal of IGMP version 1 text  . . . . . . . . . . . . .  16
      B.2.  Introduction of the term Any-Source Multicast (ASM) . . .  17
      B.3.  Applicability to both IP and IPv6 . . . . . . . . . . . .  17
-     B.4.  Standard for IP multicasting in controlled networks . . .  18
+     B.4.  Standard for IP multicasting in controlled networks . . .  17
    Appendix C.  Discussion and Explanations (TO BE REMOVED)  . . . .  18
      C.1.  Goals of this document  . . . . . . . . . . . . . . . . .  18
-
-
-
-Deering, et al.         Expires 12 September 2023               [Page 2]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
-
-     C.2.  Internet Standard status  . . . . . . . . . . . . . . . .  19
-     C.3.  Open issues . . . . . . . . . . . . . . . . . . . . . . .  20
+     C.2.  Internet Standard status  . . . . . . . . . . . . . . . .  18
+     C.3.  Authors email . . . . . . . . . . . . . . . . . . . . . .  19
      C.4.  Changelog . . . . . . . . . . . . . . . . . . . . . . . .  20
        C.4.1.  draft-eckert-pim-rfc1112bis-01  . . . . . . . . . . .  20
        C.4.2.  draft-eckert-pim-rfc1112bis-00  . . . . . . . . . . .  20
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  21
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  20
+
+
+
+
+
+
+Deering & Eckert        Expires 13 September 2023               [Page 2]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
 
 1.  STATUS OF THIS MEMO
 
@@ -161,20 +154,21 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    not guaranteed to arrive intact at all members of the destination
    group or in the same order relative to other datagrams.
 
-
-
-
-
-Deering, et al.         Expires 12 September 2023               [Page 3]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
-
    The membership of a host group is dynamic; that is, hosts may join
    and leave groups at any time.  There is no restriction on the
    location or number of members in a host group.  A host may be a
    member of more than one group at a time.  A host need not be a member
    of a group to send datagrams to it.
+
+
+
+
+
+
+Deering & Eckert        Expires 13 September 2023               [Page 3]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
 
    A host group may be permanent or transient.  A permanent group has a
    well-known, administratively assigned IP address.  It is the address,
@@ -212,20 +206,6 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
 
    There are three levels of conformance to this specification:
 
-
-
-
-
-
-
-
-
-
-Deering, et al.         Expires 12 September 2023               [Page 4]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
-
 3.1.  Level 0: no support for IP multicasting.
 
    There is, at this time, no requirement that all IP implementations
@@ -237,6 +217,14 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    address in their destination address field; they should be quietly
    discarded by hosts that do not support IP multicasting.  Class D
    addresses are described in section 4 of this memo.
+
+
+
+
+Deering & Eckert        Expires 13 September 2023               [Page 4]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
 
 3.2.  Level 1: support for sending but not receiving multicast IP
       datagrams.
@@ -274,14 +262,6 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    i.e., those with "1111" as their high-order four bits, are reserved
    for future addressing modes.
 
-
-
-
-Deering, et al.         Expires 12 September 2023               [Page 5]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
-
    In Internet standard "dotted decimal" notation, host group addresses
    range from 224.0.0.0 to 239.255.255.255.  The address 224.0.0.0 is
    guaranteed not to be assigned to any group, and 224.0.0.1 is assigned
@@ -293,6 +273,14 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
 
    IPv6 Host groups are identified by IPv6 addresses as defined in
    [RFC4291] section 2.7 and updated by [RFC7346], [RFC7371].
+
+
+
+
+Deering & Eckert        Expires 13 September 2023               [Page 5]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
 
    IP and IPv6 addresses as specified in [RFC4607] are not used for ASM
    IP multicast and are not considered IP host groups.  They are instead
@@ -311,32 +299,6 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    to local network addresses is considered to be the responsibility of
    local network modules.  This model is for expository purposes only,
    and should not be construed as constraining an actual implementation.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Deering, et al.         Expires 12 September 2023               [Page 6]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
 
       |                                                          |
       |              Upper-Layer Protocol Modules                |
@@ -368,6 +330,14 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    2 multicasting, a host must also support the reception of multicast
    IP datagrams.  Each of these two new services is described in a
    separate section, below.  For each service, extensions are specified
+
+
+
+Deering & Eckert        Expires 13 September 2023               [Page 6]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
+
    for the IP service interface, the IP module, the local network
    service interface, and an Ethernet local network module.  Extensions
    to local network modules other than Ethernet are mentioned briefly,
@@ -386,14 +356,6 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    First, the service interface should provide a way for the upper-layer
    protocol to specify the IP time-to-live of an outgoing multicast
    datagram, if such a capability does not already exist.  If the upper-
-
-
-
-Deering, et al.         Expires 12 September 2023               [Page 7]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
-
    layer protocol chooses not to specify a time-to-live, it should
    default to 1 for all multicast IP datagrams, so that an explicit
    choice is required to multicast beyond a single network.
@@ -420,6 +382,18 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    IPv6 socket extensions supporting these functions are defined in
    [RFC3493], section 5.2.
 
+
+
+
+
+
+
+
+Deering & Eckert        Expires 13 September 2023               [Page 7]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
+
 6.2.  Extensions to the IP Module
 
    To support the sending of multicast IP datagrams, the IP module must
@@ -440,15 +414,6 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
           send datagram locally to IP-destination
        else
           send datagram locally to GatewayTo( IP-destination )
-
-
-
-
-
-Deering, et al.         Expires 12 September 2023               [Page 8]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
 
    If the sending host is itself a member of the destination group on
    the outgoing interface, a copy of the outgoing datagram must be
@@ -477,6 +442,14 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    datagrams is a procedure for mapping IP host group addresses to
    Ethernet multicast addresses.
 
+
+
+
+Deering & Eckert        Expires 13 September 2023               [Page 8]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
+
    An IP host group address is mapped to an Ethernet multicast address
    by placing the low-order 23-bits of the IP address into the low-order
    23 bits of the Ethernet multicast address 01-00-5E-00-00-00 (hex).
@@ -498,14 +471,6 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    all local hosts).  For a point-to-point link joining two hosts (or a
    host and a multicast router), multicasts should be transmitted
    exactly like unicasts.  For a store-and-forward network like the
-
-
-
-Deering, et al.         Expires 12 September 2023               [Page 9]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
-
    ARPANET or a public X.25 network, all IP host group addresses might
    be mapped to the well-known local address of an IP multicast router;
    a router on such a network would take responsibility for completing
@@ -533,6 +498,14 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    interface.  The LeaveGroup operation requests that this host give up
    its membership in the host group identified by "group-address" on the
    given network interface.  The interface argument may be omitted on
+
+
+
+Deering & Eckert        Expires 13 September 2023               [Page 9]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
+
    hosts that support only one interface.  For hosts that may be
    attached to more than one network, the upper-layer protocol may
    choose to leave the interface unspecified, in which case the request
@@ -552,15 +525,6 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    group on the given interface.  LeaveHostGroup may succeed, but the
    membership persist, if more than one upper-layer protocol has
    requested membership in the same group.
-
-
-
-
-
-Deering, et al.         Expires 12 September 2023              [Page 10]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
 
    IPv6 socket extensions supporting these functions are defined in
    [RFC3493], section 5.2.  [RFC3678] specifies these functions for IP
@@ -584,6 +548,20 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    discarded.  (These cases should occur only as a result of inadequate
    multicast address filtering in a local network module.)
 
+
+
+
+
+
+
+
+
+
+Deering & Eckert        Expires 13 September 2023              [Page 10]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
+
    An incoming datagram is not rejected for having an IP time-to-live of
    1 (i.e., the time-to-live should not automatically be decremented on
    arriving datagrams that are not being forwarded).  An incoming
@@ -606,17 +584,6 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    for IP and the MLD protocol for IPv6.  IGMP/MLD are used to keep
    neighboring multicast routers informed of the host group memberships
    present on a particular local network.
-
-
-
-
-
-
-
-Deering, et al.         Expires 12 September 2023              [Page 11]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
 
 7.3.  Extensions to the Local Network Service Interface
 
@@ -643,6 +610,14 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    JoinLocalGroup requests, if it is unable to filter incoming packets
    adequately.
 
+
+
+
+Deering & Eckert        Expires 13 September 2023              [Page 11]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
+
    The local network module must not deliver up any multicast packets
    that were transmitted from that module; loopback of multicasts is
    handled at the IP layer or higher.
@@ -663,16 +638,6 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
    which may mean "opening up" the address filter to accept all
    multicast packets during those periods when the number of addresses
    exceeds the limit of the filter.
-
-
-
-
-
-
-Deering, et al.         Expires 12 September 2023              [Page 12]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
 
    For interfaces with inadequate hardware address filtering, it may be
    desirable (for performance reasons) to perform Ethernet address
@@ -699,6 +664,16 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
               RFC 1112, DOI 10.17487/RFC1112, August 1989,
               <https://www.rfc-editor.org/info/rfc1112>.
 
+
+
+
+
+
+Deering & Eckert        Expires 13 September 2023              [Page 12]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
+
    [RFC2464]  Crawford, M., "Transmission of IPv6 Packets over Ethernet
               Networks", RFC 2464, DOI 10.17487/RFC2464, December 1998,
               <https://www.rfc-editor.org/info/rfc2464>.
@@ -721,14 +696,6 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
               <https://www.rfc-editor.org/info/rfc8200>.
 
 8.2.  Informative References
-
-
-
-
-Deering, et al.         Expires 12 September 2023              [Page 13]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
 
    [I-D.ietf-taps-interface]
               Trammell, B., Welzl, M., Enghardt, R., Fairhurst, G.,
@@ -753,10 +720,24 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
               DOI 10.17487/RFC1972, August 1996,
               <https://www.rfc-editor.org/info/rfc1972>.
 
+
+
+
+
+
+Deering & Eckert        Expires 13 September 2023              [Page 13]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
+
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC2460]  Deering, S. and R. Hinden, "Internet Protocol, Version 6
+              (IPv6) Specification", RFC 2460, DOI 10.17487/RFC2460,
+              December 1998, <https://www.rfc-editor.org/info/rfc2460>.
 
    [RFC3376]  Cain, B., Deering, S., Kouvelas, I., Fenner, B., and A.
               Thyagarajan, "Internet Group Management Protocol, Version
@@ -778,14 +759,6 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
               DOI 10.17487/RFC3810, June 2004,
               <https://www.rfc-editor.org/info/rfc3810>.
 
-
-
-
-Deering, et al.         Expires 12 September 2023              [Page 14]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
-
    [RFC3956]  Savola, P. and B. Haberman, "Embedding the Rendezvous
               Point (RP) Address in an IPv6 Multicast Address",
               RFC 3956, DOI 10.17487/RFC3956, November 2004,
@@ -801,6 +774,17 @@ Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
               Listener Discovery Version 2 (MLDv2) Protocols", RFC 5790,
               DOI 10.17487/RFC5790, February 2010,
               <https://www.rfc-editor.org/info/rfc5790>.
+
+
+
+
+
+
+
+Deering & Eckert        Expires 13 September 2023              [Page 14]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
 
    [RFC6085]  Gundavelli, S., Townsley, M., Troan, O., and W. Dec,
               "Address Mapping of IPv6 Multicast Packets on Ethernet",
@@ -831,17 +815,6 @@ Appendix A.  HOST GROUP ADDRESS ISSUES
    provides background discussion of several issues related to IP host
    group addresses.
 
-
-
-
-
-
-
-Deering, et al.         Expires 12 September 2023              [Page 15]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
-
 A.1.  Group Address Binding
 
    The binding of IP host group addresses to physical hosts may be
@@ -858,6 +831,16 @@ A.1.  Group Address Binding
    associate only a single Ethernet multicast address with each host
    group having local members, rather than a list of the members'
    individual IP or Ethernet addresses.
+
+
+
+
+
+
+Deering & Eckert        Expires 13 September 2023              [Page 15]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
 
 A.2.  Allocation of Transient Host Group Addresses
 
@@ -889,15 +872,6 @@ Appendix B.  Changes from RFC1112
 
    This document updates [RFC1112] with the following changes.
 
-
-
-
-
-Deering, et al.         Expires 12 September 2023              [Page 16]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
-
 B.1.  Removal of IGMP version 1 text
 
    The primary change of this update is the removal of the text of
@@ -913,6 +887,16 @@ B.1.  Removal of IGMP version 1 text
 
    No functional changes to the IP Multicast service are incurred by
    these changes.
+
+
+
+
+
+
+Deering & Eckert        Expires 13 September 2023              [Page 16]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
 
 B.2.  Introduction of the term Any-Source Multicast (ASM)
 
@@ -944,16 +928,6 @@ B.3.  Applicability to both IP and IPv6
    as it was only defined for IP.  Future documents can refer to this
    document as the IP Multicast / ASM service for both IP and IPv6.
 
-
-
-
-
-
-Deering, et al.         Expires 12 September 2023              [Page 17]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
-
    Additional text provides references for IETF UDP socket API
    specifications that instantiate the abstract APIs defined in this
    document.
@@ -972,6 +946,13 @@ B.4.  Standard for IP multicasting in controlled networks
    for protocols to support interdomain ASM except for [RFC3956], which
    is only applicable to IPv6, and even that solution does not resolve
    the challenges to source access control in interdomain deployments.
+
+
+
+Deering & Eckert        Expires 13 September 2023              [Page 17]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
 
    In result, ASM is today "only" a recommended solution for controlled
    networks including controlled federated networks for applications for
@@ -1003,13 +984,6 @@ C.1.  Goals of this document
    has since its inception been the Internet Standard for the IP
    Multicasting service.
 
-
-
-Deering, et al.         Expires 12 September 2023              [Page 18]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
-
    To allow for this document to gets immediately the intended Internet
    Standard status, it introduces no functional changes and it
    deliverately avoids also any unnecessary textual changes.  This
@@ -1025,6 +999,16 @@ C.2.  Internet Standard status
    whether the document in its current form still contains
    specifications sufficient for Internet Standard as opposed to
    Informational.
+
+
+
+
+
+
+Deering & Eckert        Expires 13 September 2023              [Page 18]
+
+Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
+
 
    The core aspects that impacts interoperability (and hence qualifies
    the document for Internet Standard) is the format of IP packets when
@@ -1056,41 +1040,31 @@ C.2.  Internet Standard status
    Internet Standard.  With this in mind, all that text of [RFC1112] can
    also be considered appropriate for Internet Standard.
 
+C.3.  Authors email
+
+   This document does include Steve Deering as the original author of
+   the base rfc [RFC1112] in the same way as [RFC8200] does for
+   [RFC2460] ([RFC8507] is also similar).  The mayority of text
+   originates from his original RFC, hence he is the primary co-author.
+   He is not actively involved in editing this -bis document but is in
+   support of the work.  Changes are edited by the co-author(s).
+
+   Being retired and not actively involved, he does not want for his
+   personal email address to be included in the work.  Any notifications
+   where all authors need to provide feedback will be forwarded through
+   the co-author.
+
+   Whereas at the time of [RFC8200] it was possible for a co-author to
+   not have to include an email address, policies on Datatracker have
+   since changed and therefore this draft include a placeholder email
+   address for Steve solely to allow uploading to Datatracker.
 
 
 
-
-
-Deering, et al.         Expires 12 September 2023              [Page 19]
+Deering & Eckert        Expires 13 September 2023              [Page 19]
 
 Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
 
-
-C.3.  Open issues
-
-   The original Author of [RFC1112], Stephen E.  Deering prefers that no
-   e-mail address appears in RFC for his authorship.  This wish was
-   honored by the IETF for [RFC8200] and [RFC8507], but seemingly the
-   IETF policy on this was changed afterwards to mandate e-mails for
-   authors.
-
-   The authors to consider that the prior policy did work well for
-   [RFC8200] and [RFC8507] and think the current policy is inappropriate
-   for the case of this document: The original author is not involved in
-   the editing of this document and hence does not want to be involved /
-   receive emails about it.  Nevertheless, the text of this document is
-   overwhelmingly the work of this original author, so there is no
-   appropriate way for him not to be named the primary author.  Likewise
-   a complete rework of the text just to overcome a new IETF policy is
-   inappropriate.
-
-   Given how IETF Datatracker does require email addresses for authors,
-   this open issue is currently attempted to be worked around by using a
-   pseudo email for Steve Deering: deering@noreply.ietf.org.
-
-   Note that any process steps where author approval is required (such
-   as during AUTH48 or for IPR questionaires) will be provided for Steve
-   Deering by Bob Hinden, bob.hinden@gmail.com.
 
 C.4.  Changelog
 
@@ -1100,7 +1074,7 @@ C.4.1.  draft-eckert-pim-rfc1112bis-01
    Only IPv6 has in IETF specs the distinction of including the version.
 
    Changed Steve Deerings address to a pseudo-email address at IETF.
-   See open issues.
+   See prior section.
 
    Converted document into kramdownrfc2629 format for easier editing.
 
@@ -1113,14 +1087,6 @@ C.4.1.  draft-eckert-pim-rfc1112bis-01
 C.4.2.  draft-eckert-pim-rfc1112bis-00
 
    Initial version based on [RFC1112] text version, edited.
-
-
-
-
-Deering, et al.         Expires 12 September 2023              [Page 20]
-
-Internet-Draft      Any Source IP Multicasting (ASM)          March 2023
-
 
 Authors' Addresses
 
@@ -1137,10 +1103,6 @@ Authors' Addresses
    Email: tte@cs.fau.de
 
 
-   Robert M. Hinden
-   Secretary for Stephen E. Deering
-   United States of America
-   Email: bob.hinden@gmail.com
 
 
 
@@ -1155,22 +1117,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Deering, et al.         Expires 12 September 2023              [Page 21]
+Deering & Eckert        Expires 13 September 2023              [Page 20]
