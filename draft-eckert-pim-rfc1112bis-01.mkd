@@ -3,7 +3,7 @@
 coding: utf-8
 title: Host Extensions for "Any Source" IP Multicasting (ASM)
 abbrev: Any Source IP Multicasting (ASM)
-docname: draft-eckert-pim-rfc1112bis
+docname: draft-eckert-pim-rfc1112bis-01
 wg: PIM
 category: std
 stream: IETF
