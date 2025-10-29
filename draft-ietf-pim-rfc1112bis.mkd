@@ -3,12 +3,12 @@
 coding: utf-8
 title: Host Extensions for IP Multicasting and "Any Source Multicasting" (ASM) IP service 
 abbrev: IP Multicast Host Extensions and ASM
-docname: draft-ietf-pim-rfc1112bis-03
+docname: draft-ietf-pim-rfc1112bis-06
 wg: PIM
 category: std
 stream: IETF
 obsoletes: 1112
-updates: 791
+updates: 791, 1122
 # ipr: trust200902
 ipr: pre5378Trust200902
 
@@ -17,49 +17,60 @@ pi: [ toc, tocdepth: 5, sortrefs, symrefs, comments]
 
 author:
   -   
-       name: Stephen E. Deering
-       org: Retired
-       city: Vancouver, British Columbia
-       country: Canada
-       email: deering@noreply.ietf.org
-  -   
        name: Toerless Eckert
        org: Futurewei Technologies USA
        role: editor
        country: USA
        email: tte@cs.fau.de
+  -   
+       name: Stephen E. Deering
+       org: Retired
+       city: Vancouver, British Columbia
+       country: Canada
+       email: deering@noreply.ietf.org
 
 normative:
   RFC791:
+  RFC1122:
   STD5:
   IGMPv2: RFC2236
   RFC2464:
   RFC4291:
   SSM: RFC4607
-  IGMPv3: I-D.ietf-pim-3376bis
-  MLDv2: I-D.ietf-pim-3810bis
   RFC8200:
+  RFC8504:
+  IGMPv3: RFC9776
+  MLDv2: RFC9777
 
 informative:
+
   RFC1045:
   RFC1723:
   RFC1883:
   RFC2365:
   RFC2328:
+  MADCAP: RFC2730
+  MASC: RFC2909
   RFC3232:
   MLDv1: RFC2710
   RFC3493:
   RFC3678:
+  RFC3810:
   RFC3956:
   IGMPsnooping: RFC4541
+  GDOI: RFC4607
   RFC4861:
   RFC5771:
   IGMPv3lite: RFC5790
   RFC6034:
   RFC6085:
+  RFC6308:
+  mDNS: RFC6763
   RFC7346:
   RFC7371:
+  RFC7721:
   RFC8815:
+  BIER: RFC8279
 
 --- abstract
 
@@ -174,14 +185,24 @@ arbitrary local network and gives an Ethernet specification as an
 example.  Specifications for other types of network will be the
 subject of future memos.
 
-# LEVELS OF CONFORMANCE
+# LEVELS OF CONFORMANCE {#conformance}
 
-There are three levels of conformance to this specification:
+There are three levels of conformance to this specification. They
+apply independently for IPv4 and IPv6.
+
+All Internet hosts and gateways are RECOMMENDED to conform to
+Level 2 for the versions of IP that they support.
+
+Hosts or gateways supporting IPv4 that can not conform to Level 2
+for it are RECOMMENDED to conform to Level 2L.
+
+Hosts or gateways supporting IPv4 that can not conform to Level 2
+for it are REQUIRED to conform to Level 2L in support of the
+requirements from {{RFC4291}}, section 2.8.
 
 ## Level 0: no support for IP multicasting.
 
-There is, at this time, no requirement that all IP implementations
-support IP multicasting.  Level 0 hosts will, in general, be
+Level 0 hosts will, in general, be
 unaffected by multicast activity.  The only exception arises on some
 types of local network, where the presence of level 1 or 2 hosts may
 cause misdelivery of multicast IP datagrams to level 0 hosts.  Such
@@ -204,18 +225,28 @@ implementations.
 
 Level 2 allows a host to join and leave host groups, as well as send
 IP datagrams to host groups.  Most IPv6 hosts require Level 2 support
-because IPv6 Neighbor Discovery ({{RFC4861}}, as used on most link types),
+because IPv6 Neighbor Discovery ({{RFC4861}}, as used on most link types, see {{RFC8504}}, section 5.4),
 depends on multicast and requires that nodes join Solicited Node multicast addresses.
 
-Level 2 requires implementation of the Internet Group Management Protocol (IGMP)
-for IPv4 and the equivalent Multicast Listener Discovery Protocol (MLD) for IPv6 
-and extension of the IP and local network service interfaces within the host.
+Level 2 requires implementation of the host side of the Internet Group Management Protocol (IGMP)
+for IPv4 and the equivalent host side of the Multicast Listener Discovery Protocol (MLD) for IPv6 
+and extension of the IP and local network service interfaces within the host as specified or 
+referred to in the following sections.
 
 The current protocol versions for full Level 2 support of IP multicasting are
 {{IGMPv3}} and {{MLDv2}} or lightweight versions of either protocol {{IGMPv3lite}}.
 
 All of the following sections of this memo are applicable to level 2
 implementations.
+
+## Level 2L: support for only link local IP multicasting.
+
+Level 2L has the same functionality as Level 2 except that it does not include
+the implementation of IGMP for IPv4 or MLD for IPv6. Level 2L hosts can only
+send/receive IP multicast to their local network.
+
+Level 2L hosts SHOULD only join/leave Link-Local host groups (see {{host-groups}}) and
+send IP datagrams to Link-Local host groups - but not other host groups.
 
 # HOST GROUP ADDRESSES {#host-groups}
 
@@ -230,18 +261,18 @@ range from 224.0.0.0 to 239.255.255.255.  IPv4 host group addresses in the
 called Link-Local IPv4 host group addresses. IP datagrams with a Link-Local destination address
 are called Link-Local multicast packets. The IPv4 Link-Local addresses 224.0.0.0 is
 guaranteed not to be assigned to any group, and 224.0.0.1 is assigned
-to the permanent group of all IPv4 hosts (including gateways).  This is
-used to address all IP multicast hosts on the directly connected
-network.  There is no multicast address (or any other IP address) for
-all hosts on the total Internet. Allocation guidelines for Link-Local
-addresses are specified in {{RFC5771}}.
+to the permanent group of all IPv4 hosts (including gateways). It is called
+the all-hosts group. This is used to address all IP multicast hosts (including gateways)
+on the directly connected network.  There is no multicast address (or any other IP address) for
+all hosts on the total Internet.
 
-The addresses of well-known, permanent groups are to be published in
+The addresses of well-known, permanent IPv4 multicast groups are to be published in
 "Assigned Numbers", see {{RFC3232}}, currently through the IANA
 "IPv4 Multicast Address Space Registry". {{RFC5771}} and {{RFC6034}} refine
 more detailed allocation and uses of different sub-blocks of 224.0.0.0/4.
 
-The IPv6 all-hosts group address is FF02::1,
+Allocation guidelines for Link-Local IPv6 multicast group addresses are specified in {{RFC5771}}.
+The IPv6 Link-Local all-hosts group address is FF02::1.
 IPv6 Host groups are identified by IPv6 addresses as defined in {{RFC4291}} section 2.7
 and updated by {{RFC7346}}, {{RFC7371}}. The addresses of other groups
 are currently published via the IANA "IPv6 Multicast Address Space Registry".
@@ -317,14 +348,14 @@ choice is required to multicast beyond a single network.
 
 Second, for hosts that may be attached to more than one network, the
 service interface SHOULD provide a way for the upper-layer protocol
-to identify which network interface is be used for the multicast
+to identify which network interface is to be used for the multicast
 transmission.  Only one interface is used for the initial
 transmission; multicast routers are responsible for forwarding to any
 other networks, if necessary.  If the upper-layer protocol chooses
 not to identify an outgoing interface, a default interface SHOULD be
 used, preferably under the control of system management.
 
-Third (level 2 implementations only), for the case in which the host
+Third (level 2/2L implementations only), for the case in which the host
 is itself a member of a group to which a datagram is being sent, the
 service interface SHOULD provide a way for the upper-layer protocol
 to inhibit local delivery of the datagram; by default, a copy of the
@@ -363,7 +394,7 @@ To allow multicast transmissions, the routing logic MUST be changed to:
 If the sending host is itself a member of the destination group on
 the outgoing interface, a copy of the outgoing datagram MUST be
 looped-back for local delivery, unless inhibited by the sender.
-(Level 2 implementations only.)
+(Level 2/2L implementations only.)
 
 The IP source address of the outgoing datagram MUST be one of the
 individual addresses corresponding to the outgoing interface.
@@ -420,12 +451,14 @@ multicast delivery within the network as well as among networks.
 
 # RECEIVING MULTICAST IP DATAGRAMS
 
-## Extensions to the IP Service Interface
+## Extensions to the IP Service Interface {#service}
 
 Incoming multicast IP datagrams are received by upper-layer protocol
 modules using the same "Receive IP" operation as normal, unicast
 datagrams.  Selection of a destination upper-layer protocol is based
-on the protocol field in the IP header, regardless of the destination
+on the protocol field in the IPv4 header or the next header field in the
+IPv6 header or IPv6 extension header preceeding the upper-layer protocol header
+(when IPv6 extension headers are used).  This is regardless of the destination
 IP address.  However, before any datagrams destined to a particular
 group can be received, an upper-layer protocol must ask the IP module
 to join that group.  Thus, the IP service interface MUST be extended
@@ -465,8 +498,7 @@ requested membership in the same group.
 IPv6 socket extensions supporting these functions are defined in
 {{RFC3493}}, section 5.2.  {{RFC3678}} specifies socket options for
 these functions for ASM and also includes socket options in support of SSM.
-Note that these are UDP socket extensions but not IP socket extensions due to
-the absence of widely adopted/required IP level socket APIs.
+See also {{security-considerations}}.
 
 ## Extensions to the IP Module {#rcv-extensions}
 
@@ -506,13 +538,15 @@ When supporting Level 2, the IP module MUST also be extended to implement the
 IGMP protocol for IPv4 and the MLD protocol for IPv6 depending on the version(s)
 of IP to be supported.  IGMP/MLD are used to keep neighboring multicast
 routers informed of the host group memberships present on a
-particular local network. See {{special}} for potentially special treatment of
-the all-hosts groups in IGMP/MLD.
+particular local network. 
 
-Hosts and gateways MAY omit the sending of IGMP messages to report membership
+Level 2 hosts and gateways MAY omit the sending of IGMP messages to report membership
 for Link-Local IPv4 host group addresses, especially on networks known not to (be
 able to) use any form of IGMP snooping. This does also apply for the IPv6 Link-Local
- host group all-hosts FF02::1, but not to other Link-Local IPv6 host groups. See {{ll-apdx}}. 
+all-hosts group FF02::1, but not to other Link-Local IPv6 host groups. See {{level2l}} and {{ll-apdx}}. 
+
+Level 2/2L hosts and gateways SHOULD permanently join to the Link-Local all-hosts group
+for the version of IP they implement. See {{special}}.
 
 ## Extensions to the Local Network Service Interface
 
@@ -590,6 +624,196 @@ The equivalent requirement are specified for IPv6 in {{RFC4291}}, section 2.5.6.
 Rules for forwarding of non Link-Local IP multicast packets are outside the
 scope of this document.
 
+# Security considerations {:security-considerations}
+
+This section may repeat a few core observations from elsewhere in the document to make
+it easier for security interested readers to understand the context without having
+to understand the whole document.
+
+## Network forwarding issues out of scope {:forwarding}
+
+A significant number of security issues exists in the network when sending IP multicast
+packets or when joining IP multicast groups leads to network state.  Nevertheless, those issues
+are not caused by the ASM service model itself but are the result of specific choices
+of forwarding of ASM traffic across routers, which is outside the scope of this specification.
+For example, these issues do not exist if the network is simply a stateless broadcast domain
+such as a (non-switched) ethernet or wifi network, or if the network uses a stateless
+forwarding model such as Bit Index Explicit Replication ({{BIER}}). Therefore the remainder
+of this section only considers isues directly linked to the ASM service model and host stack
+specified in this document.
+
+## Lacking receiver control 
+
+Senders in ASM can not control who receives their traffic because any host
+can join the group that the sender sends to. The larger address space of IPv6
+multicast groups may make it easier to keep an ASM group address secret from being
+successfully discovered by undesired receivers. Encryption of ASM traffic and sharing of keys
+with only desired receivers is another solution against this challenge. For example,
+{{GDOI}} specifies a mechanism for secure sharing of ASM multicast group communication keys.
+
+Note though that some types of deployed IP multicast based application services such as
+multicasting of high-value content do not consider such group encryption keys, especially
+when they are shared between a large number of legitimate but not necessarily trustworthy
+receivers, as secure enough alone. A single impaired receiver may be set up to extract
+the shared key and pass it on to illegitimate receivers in real-time. This has wideley happened
+in deployed solutions in the past which multicast/broadcast content. In these cases, additional,
+per receiver, per IP multicast group authorization can be used to limit what IP multicast
+traffic is forwarded by the network to each host. These are often available in IP multicast
+implementations in network equipment but are not IETF standardized. Likewise, hardware and/or
+software solutions on hosts to prohibit such key extraction can be used. These are commonly
+called "Trusted Execution Environments" (TEE) and solutions applying them to prohibit content
+leakage are called "Digital Rights Managmeent" (DRM).
+
+## Lacking sender control {:sender-control}
+
+Receivers in ASM can not control who is sending traffic to them unless they can rely on 
+the aforementioned ASM group address secrecy. This problem is the same in unicast except
+that the methods or likelyhoods to keep destination host unicast addresses and ASM
+group addresses secret vary significantly. There is no analysis of ASM group
+address privacy comparable to {{RFC7721}}.
+
+The {{SSM}} service model
+eliminates the sender control challenge by requiring receivers to explicitly indicate the desired
+sender of the multicast traffic. Using an appropriate forwarding method across the network,
+{{SSM}} is better than unicast in protecting against undesired traffic as it can often stop
+unwanted SSM traffic from even entering the network, whereas in unicast it can only be
+discarded at the receiver. Note too, that an {{SSM}} host stack is an extension of
+the host-stack specified in this document. It only enhances further what is specified here
+but does not replace it.
+
+## Packet spoofing
+
+Unless sender control is performed, packet spoofing may not even be necessary to perform
+equivalent attacks as outlined in {{sender-control}}. The ease of spoofing sender
+IP source address and layer 2 sender address (like sender MAC-address on ethernet)
+highly depends on the (inter)network between sender and receiver.
+
+In a simple broadcast domain without active switches between sender and receiver,
+IP multicast packets are as easily spoofed as IP packets. If switches are introduced,
+without {{IGMPsnooping}}, then IP multicast packets are equally easy to be spoofed
+because they are still broadcast, whereas IP packets become more difficult to spoof
+because attackers may not even see IP exchanges between a sender to spoof and its receivers,
+nor may it know their IP addresses.
+
+Introducing {{IGMPsnooping}} somewhat levels the playing field and makes spoofing IP multicast
+packets more difficult, but as long as an attacker can be a valid receiver of IP multicast
+packets from a sender it wants to spoof and can guess the IP multicast group(s), it can also
+learn the source IP address and layer 2 address of the sender it wants to spoof by simply
+joining to it's IP multicast traffic.
+
+In internetworks, routers do typically perform RPF check for IP multicast packets
+as part of stateful forwarding of IP multicast packets, but this varies by the IP multicast
+routing / tree building protocol and is, as mentioned in {{forwarding}} out of scope.
+
+Authentication of ASM/SSM traffic with group keys such as through {{GDOI}} can protect
+against many cases of spoofing, but it can not effectively prohibit sender spoofing by
+any of the legitimate receivers (which could potentially be millions). Mechanisms to provide
+more efficient cryptographic protection against sender spoofing than asymmetric key signing
+with timestamping against replay attacks exist but have not been standardized through IETF
+work.
+
+## Address management out of scope
+
+Receiving IP multicast packets from undersired senders may not be malicious but can simply
+be a result of absent or incorrect IP multicast group address management that needs to assign
+unique group addresses to every application instance that needs them. This document does not
+specify such IP multicast group address management. Static allocation is the most widely
+used option in deployment today. Early proposals for dynamic address allocation protocols,
+including {{MASC}} and {{MADCAP}} have not gained traction and mosts of them do not
+consider IPv6. See {{RFC2908}}.
+
+## Waste traffic in the absence of address management
+
+While it is possible to forego address management and share IP multicast groups
+across multiple application instances simply by de-multiplexing at higher layers such as UDP
+ports and/or encryption layer selectors, relying on that approach for traffic separation is
+highly undesirable because every receiver for an application sharing an IP multicast
+address would have to receive (and discard) the packets for all other applications sharing
+the same address - even if the receiver is not a member of them.  This "waste traffic" 
+can result in overload of network paths such as the interface to the receiver and cause
+loss of packets. Given that such traffic also still goes up to the transport/security
+layer where it is discarded, it can also cause resource overload on the host.
+
+## Traffic issues due to layer 2 to layer 3 mapping
+
+Hosts may need to receive and process IP multicast packets (in software) for IP
+multicast groups that they have not joined because of possible N:1 mapping issues
+in the layer 2 mapping of IP multicast. As described in {{ethernet}}, in IPv4
+224.x.y.z, 224.(x+128).y.z, ..., 239.x.y.z, 239.(x+128).y.z will map to the same
+MAC address 01-00-5E-xx-yy-zz for x=0..127/xx=hex(x), y=0..255/yy=hex(y), z=0..255/zz=hex(z).
+For IPv6 over ethernet, similar mapping issues exist.
+
+An only slightly overstated example is a broadcast network where few high-speed hosts receive
+a high bitrate IPv4 multicast video stream to address 239.128.0.251 and a very small,
+low-end CPU alarm siren has to be discovered via {{mDNS}} on 239.0.0.251. Both addresses
+map to 01-00-5E-00-00-FB. The software infrastructure (CPU, buffers) on the alarm siren
+gets overloaded by the IP multicast video stream becsause those packets are not filtered
+in the MAC hardware filter, and {{mDNS}} fails to discover the alarm siren when a fire
+in the building is discovered by a sensor.
+
+These issues are resolved by avoiding the use of multiple IP multicast group addresses that
+map to the same ethernet MAC addresses. In practice, industry recommendations primarily
+focus on avoiding the use of IP multicast group addresses that map to IP link-local multicast
+group addresses to avoid impacting key protocols as {{mDNS}} in the example.
+
+## Unexpected traffic application issues {:unexpected}
+
+If two or more instances of the same (or similar enough in packet format) applications that
+do not well enough distinguish their instances through higher layer methods are instantiated 
+and (erroneously) re-use the same IP multicast group, then this will not only cause the
+aforementioned waste traffic problems but that waste traffic can also lead to application
+malfunction or application security issues when IP multicast packets are received and processed
+by the application even though they where intended for a different application or instance.
+
+## Per-socket memberships {:per-socket}
+
+Even with correct IP multicast group address management, or when using SSM, with just
+the methods specified in this document for the host stack, applications may still receive
+unexpected IP multicast traffic. This can happen when two transport layer sockets on the
+same host for the same IPv4 protocol selector or IPv6 next header transport protocol also
+share the same transport layer selector, such as most commonly the UDP port number.
+Such sharing of port numbers across different application instances is common for application
+that use well-known port numbers, like for example many RTP video applications. This problem
+exists because this specification does not specify that group membership has to be
+per-application socket, and not simply per-host. Per-socket membership is simply out-of-scope
+for this document as it was for {{RFC1112}}. In result, early host stacks for IP multicast
+did indeed have the problem of such unexpected traffic and breaking applications or 
+causing security issue.
+
+In current host stacks for Level 2 hosts, this problem is usually eliminated when
+implementations correctly implement the following sentence present in IGMP/MLD specifications
+since {{/{{RFC3810}}.
+
+*After a multicast packet has been accepted from an interface by the
+ IP layer, its subsequent delivery to the application or process that
+ listens on a particular socket depends on the multicast listening
+ state of that socket...*
+
+Level 2L implementation would equally have to implement their host stack using such
+per-socket membership even in the absence of IGMP to signal the membership state
+to the network, but this is out of scope for this document.
+
+## Application recommendation
+
+In addition to aforementioned use of SSM and IP multicast traffic encryption via group 
+keying ({{GDOI}}), {{per-socket}} the reasons applications may receive undesired packets
+{{}}, {{}}, 
+It is therefore recommended to design IP multicast application stacks always with sufficient
+per-application instance packet identification so that erroneously received IP multicast
+ packets can be discoverd and flagged as such.
+
+groups (or subscribe to two different SSM channels).
+ receivers may receive unexpected
+traffic. This can happen when two or more applications on the same host can bind
+a transport socket (typically UDP) to the same port number but join two different
+IP multicast groups (or ASM m
+a socket to the same 
+
+Joining to ASM multicast groups uses ressources in the host. The challenges in managing
+resource exhaustion and/or fair share across multiple applications are similar to those
+for UDP sockets except that filtering of packet reception at layer 2 will typically
+consume additional hardware limited filtering resources ("MAC filters").
+
 # Status changes {#normative}
 
 ## Moving RFC1112 and IGMPv1 to historic status
@@ -626,6 +850,11 @@ and receive IP multicast packets described in this document match those defined 
 IP unicast packets in {{RFC791}}. Instead, IP multicast is carving out parts of the IP address space
 to trigger completely new forwarding for completely new entities: host groups in ASM, channels in SSM).
 See {{rfc791}} for further discussions.
+
+## Update to RFC 1122 {#update1122}
+
+This document updates {{RFC1122}} section 3.2.3 by making support for Level 2 conformance
+and hence support for IGMP recommended instead of optional as required by {{RFC1122}}. See {{conformance}}.
 
 ## Update to STD 5
 
@@ -694,6 +923,51 @@ the abstract APIs defined in this document.
 
 No functional changes to the IP multicast service are incurred by these changes.
 
+## RFC1122 and Level 2L {#level2l}
+
+{{RFC1122}} did not require support for IPv4 multicasting ("there is at this time no requirement
+that all IP implementations support IP multicasting"). Instead, {{RFC1122}} recommends support
+for IPv4 multicast (according to {{RFC1112}}), but support for IGMP to be optional,
+specifying that sending/receiving IPv4 multicast from/to the local networks
+works without IGMP and that that is the recommended form to support IPv4 multicasting. See
+also {{ll-apdx}}.
+
+With {{RFC1122}} not even specifying the combination of supporting sending/receiving
+IPv4 multicast but not supporting IGMP, this document now adds that option by specifying it as
+conformance Level 2L. Introduction of this text does also not change long-term deployment practices but
+only formalizes them. 
+
+## RFC4291 and Level 2L
+
+According to {{RFC4291}}, IPv6 nodes must support a variety of Link-Local IPv6 multicast
+address. This translates into the requirement for IPv6 hosts to at least support Level 2L,
+which is sufficient to support Link-Local IPv6 multicast. Supporting only Level 2L is
+also the only option in which an IPv6 host will not send MLD messages for Link-Local
+groups because MLD (unlike IGMP) choose to mandate the sending of MLD messages even for Link-Local host groups.
+
+This was done specifically to ensure that MLD snooping switches could constrain also Link-Local host groups,
+considering also the potential for local networks with IPv6 to potentially have many more hosts on them
+than with IPv4 because of the larger IPv6 addressing space. Implementing only Level 2L for IPv6
+is thus undesirable if MLS snooping may be encountered in deployments of the node. However,
+there are easily also node types that will never see this need, such as radio-link only nodes. Hence
+the option to only support Level 2L for IPv6.
+
+## IP multicast support
+
+With {{IGMPv3}} now being Internet Standard, there is sufficient experience to also make
+support for conformance Level 2 of IPv4 multicasting recommended through this document. This is also
+documented as an update to the IGMP support requirement in {{RFC1122}} from optional to
+recommended. See {{update1122}}).
+
+Unlike {{RFC1122}}, {{RFC8504}} does not directly raise a requirement against support for
+MLD for every node supporting IPv6. Instead, it explains the dependencies against IPv6 multicast
+and hence MLD for core IPv6 protocols used on most link types (ND, SLAAC).
+
+With {{MLDv2}} now being Internet standard, and over two decades of experience with IPv6 multicast
+availability and use on almost all IPv6 implementations, this documents now also recommends
+support for Level 2 conformance for IPv6 multicast, see {{conformance}}. Note that this is not declared as
+an update to {{RFC8504}}, because it is outside that BCP documents scope.
+
 ## IPv4 Local Network Control Block {#lncb-exp}
 
 {{RFC1112}} defines the requirement for IPv4 datagrams to the all-hosts group
@@ -710,27 +984,42 @@ accordingly described in a separate section.
 
 This requirement does not incur changes over how IP multicast is implemented or deployed.
 
-## Special treatment of 224.0.0.1 and FF02::1 {#special}
+## Permanent membership for Link-Local all-hosts groups {#special}
 
 {{RFC1112}}, section 7.2 introduced the requirements for hosts to permanently
 join 224.0.0.1. Its explains this requirement to be in support of IGMP (version 1).
 
-Likewise, {{IGMPv2}}, section 6. and {{IGMPv3}}, section 5. repeat this requirement,
+{{IGMPv2}}, section 6. and {{IGMPv3}}, section 5. inherits this requirement,
 and {{MLDv1}}, section 6. and {{MLDv2}} section 6. also define the same requirement
-for the IPv6 all-hosts address FF02::1.
+for the IPv6 Link-Local all-hosts address FF02::1.
 
-Because this requirement is considered part of IGMP/MLD, and because this document
-does not anymore specify any form of IGMP, it does not repeat this requirement from {{RFC1112}}.
-Instead, this requirement now solely relies on IGMP/MLD specifications to define it.
+{{RFC1112}} explains this choice by being "(1) it is simpler", and
+"(3) the all-hosts address may serve other routing-oriented purposes, such as advertising the
+presence of gateways or resolving local addresses."
 
-These text changes do therefore not incur any requirements changes for implementations
-of these existing versions of IGMP/MLD, By leaving out this requirement from the document,
-future versions of IGMP/MLD are also free to choose whether to carry on this method
-without having to update this document. 
+Technically, there is no necessity to permanently join the Link-Local all-hosts group.
+Like any other group, reception of packets could enabled through the
+JoinHostGroup()/LeaveHostGroup(), as described in {{service}}. However, all known host
+implementations that support IP multicast since {{RFC1112}} are based on its definitions
+and there is no obvious benefit in changing this. Hence this functionality
+is a should requirement in this document. 
+
+Note that one simplification that this requirement enables is to avoid supporting
+the JoinHostGroup()/LeaveHostGroup() API inside an operating system kernel, but still
+allow kernel level protocols to receive packets to the Link-Local all-hosts group.
+This is for example common in support of ICMP/ICMPv6 echo: "ping 224.0.0.1" to discover
+IP hosts with IP multicast support on the local network. However, this functionality
+is not enabled by default anymore in modern systems for security reasons
+(e.g.: linux: net.ipv4.icmp_echo_ignore_broadcasts=1 default configuration).
+
+The requirements text in this spec therefore does not incur any requirements changes for implementations
+of these existing versions of IGMP/MLD. By making the requirement only a should, it is also
+clear that future versions of IGMP/MLD or new host stack implementations may change this
+if they find good reasons to do so - without requiring to update this specification.
 
 Note that {{IGMPv3lite}} omits this requirement.
 
-## IGMP/MLD messages for Link-Local IPv4 host group addresses
+## IGMP/MLD messages for Link-Local IPv4 host group addresses 
 
 {{RFC1112}}, Appendix I. (IGMPv1), {{IGMPv2}}, {{IGMPv3}}, {{MLDv1}}, {{MLDv2}}
 require hosts to not send IGMP/MLD messages for the all-hosts group. This would
@@ -870,7 +1159,8 @@ IP multicast packet to a Link-Local IP multicast destination address do therefor
 technically never need any IGMP or MLD signaling on such (non-switched broadcast) networks,
 because they are never forwarded between networks ({{lncb}}).
 
-During the early years of IPv4 multicast, this understanding resulted in implementations
+During the early years of IPv4 multicast, this understanding resulted in the requirements
+of {{RFC1122}} and explained in {{level2l}} and hence implementations
 for protocols that receive Link-Local IPv4 multicast packet without implementing
 IGMP. Examples of such protocols include RIPv2 ({{RFC1723}}) or OSPF ({{RFC2328}}) and
 several other protocols, often running on IPv4 routers which had no IPv4 multicast routing
@@ -947,7 +1237,7 @@ RFC1112 anchor from the STD5 reference.
 The initial goal of this document was to allow for IETF to declare the IGMPv1
 protocol historic which today is a Full Internet Standard due to it being defined
 in RFC1112. This should be achieved without changing the Full Internet Standard status
-of the IP Host Extensions for IP Multicast and ASM IP Service interface specified in
+of the IP Host Extensions for IP multicast and ASM IP service interface specified in
 RFC1112 because those specification are as fundamental to the definition of IP
 multicast as RFC791 is for IP (unicast).
 
@@ -1007,6 +1297,41 @@ with IPv6, where IPv6 multicast is included in RFC8200.
 
 This document is hosted at https://github.com/toerless/rfc1112bis. Please submit issues
 with this text as issues to that github and report them on pim@ietf.org.
+
+### draft-ietf-pim-rfc1112bis-05
+
+Brian pointing to the requirement to support link-local IPv6 multicast in RFC4291, section 2.8,
+accordingly changed the requirement to MUST for Level 2L and explanation about that.
+
+### draft-ietf-pim-rfc1112bis-04
+
+0. Some textual nit improvements - introduced "all-hosts" also for IPv6 (but be
+careful to only call it Link-Local, as there are scope relative ones too), adding
+references to RFC8504, referring to "host-side" impleemntation of IGMP/MLD.
+Shoveling sentence in 4. to make reading more logical.
+
+1. "Levels of Conformance": Made support for IP multicast (Level 2 = sending/receiving)
+RECOMMENDED for all IPv4 / IPv6 host stack. For the past 36 years, there was only the RFC1122
+requirement (see below) for IPv4. For IPv6 there was no requirement to support IPv6 multicast at all.
+Instead, there was only a dependency to support it when implementing widespread
+IPv6 protocols (SLAAC, ND). 
+
+2. Section 3.4: Introduction of conformance Level 2L to describe IPv4 multicast
+with link-local only sending/receiving. Primarily because RFC1122 specified it, but also
+because there are sufficiently many devices that do implement this at their core - e.g.:
+router operating systems in suport of OSPF etc (most have been updated to also support
+IGMP.
+
+3. Section 7.2: (re-)introduced permanent joining of all-groups as a SHOULD requirement.
+
+4. Section 9.4 and header: Defining this doc as update to RFC1122 to override the
+36 year long recommendation of only implementing IP multicast without IGMP.
+
+5. New sections 10.7 to explain RFC1122 and Level 2L
+
+6. New section 10.8 to explain/justify recommendation to SHOULD support IP multicast on all hosts.
+
+7. Rewrote Section 10.10 for permanently join all-hosts group.
 
 ### draft-ietf-pim-rfc1112bis-03
 
